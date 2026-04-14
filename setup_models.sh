@@ -100,11 +100,15 @@ download_if_missing \
     "https://huggingface.co/exjadev/ayman0602-lora-SDXL/resolve/main/gjayman0602-000018.safetensors" \
     "${COMFYUI_DIR}/models/loras/gjayman0602-000018.safetensors"
 
-download_gdrive_if_missing "1jfnA4BTH-N99Sye4iOfq6QJx3CiFRzVd" \
-    "${COMFYUI_DIR}/models/loras/lora_v1_000002600.safetensors"
+download_if_missing \
+    "https://huggingface.co/exjadev/jayman0602-models/resolve/main/lora_v1_000002600.safetensors" \
+    "${COMFYUI_DIR}/models/loras/lora_v1_000002600.safetensors" \
+    "$HF_TOKEN"
 
-download_gdrive_if_missing "1ts-Ucv_fLsoPkJS_uahZpcfJJsznysK3" \
-    "${COMFYUI_DIR}/models/loras/z_image_lora.safetensors"
+download_if_missing \
+    "https://huggingface.co/exjadev/jayman0602-models/resolve/main/z_image_lora.safetensors" \
+    "${COMFYUI_DIR}/models/loras/z_image_lora.safetensors" \
+    "$HF_TOKEN"
 
 # ── Checkpoints ───────────────────────────────────────────────────────────────
 echo ""
@@ -167,6 +171,16 @@ download_if_missing \
 download_if_missing \
     "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors" \
     "${COMFYUI_DIR}/models/vae/flux2-vae.safetensors"
+
+# ── SAMS (ReActor/Segment Anything) ──────────────────────────────────────────
+echo ""
+echo "[ SAMS ]"
+mkdir -p ${COMFYUI_DIR}/models/sams
+
+download_if_missing \
+    "https://huggingface.co/datasets/Gourieff/ReActor/resolve/main/models/sams/sam_vit_b_01ec64.pth" \
+    "${COMFYUI_DIR}/models/sams/sam_vit_b_01ec64.pth"
+
 
 # ── SAM3 ──────────────────────────────────────────────────────────────────────
 echo ""
