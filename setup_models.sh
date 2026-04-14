@@ -18,7 +18,7 @@ echo "================================================"
 if [ ! -f "${COMFYUI_DIR}/main.py" ]; then
     echo "[ Copiando ComfyUI desde /ComfyUI → ${COMFYUI_DIR} ]"
     mkdir -p ${COMFYUI_DIR}
-    cp -rn /ComfyUI/. ${COMFYUI_DIR}/
+    cp -rn /ComfyUI/* ${COMFYUI_DIR}/
     echo "[ OK ComfyUI listo en ${COMFYUI_DIR} ]"
 else
     echo "[ OK ComfyUI ya existe en ${COMFYUI_DIR} ]"
