@@ -45,7 +45,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE_NAME }}:latest
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:build-${{ github.run_number }}
           no-cache: true
           build-args: |
             HF_TOKEN=${{ secrets.HF_TOKEN }}
