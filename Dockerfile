@@ -3,20 +3,11 @@ FROM ls250824/run-comfyui-image:24032026
 ENV DEBIAN_FRONTEND=noninteractive
 ENV COMFYUI_DIR=/workspace/ComfyUI
 
-# Token llega como build-arg (nunca queda en el repo)
-ARG HF_TOKEN
-
 RUN apt-get update -qq && apt-get install -y -qq git wget && \
     pip install -q gdown && \
     rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p ${COMFYUI_DIR}/custom_nodes \
-             ${COMFYUI_DIR}/models/loras \
-             ${COMFYUI_DIR}/models/checkpoints \
-             ${COMFYUI_DIR}/models/diffusion_models \
-             ${COMFYUI_DIR}/models/text_encoders \
-             ${COMFYUI_DIR}/models/vae \
-             ${COMFYUI_DIR}/models/sam3 \
              ${COMFYUI_DIR}/user/default/workflows
 
 # ── Custom Nodes ──────────────────────────────────────────────────────────────
@@ -33,33 +24,14 @@ RUN for dir in rgthree-comfy ComfyUI-Impact-Pack ComfyUI_essentials ComfyUI-GGUF
       if [ -f "$REQ" ]; then pip install -q -r "$REQ"; fi; \
     done
 
+# ── Workflow ───────────────────────────────────────────────────────────────────
 COPY workflow.json ${COMFYUI_DIR}/user/default/workflows/workflow.json
 
-# ── LoRAs ─────────────────────────────────────────────────────────────────────
-RUN cd ${COMFYUI_DIR}/models/loras && rm -rf split_files/ && \
-    wget -q https://huggingface.co/exjadev/ayman0602-lora-SDXL/resolve/main/gjayman0602-000018.safetensors && \
-    gdown "https://drive.google.com/uc?id=1sBZqIw3xgpXt8XYy6IB_vCarU3QtFj1i" && \
-    gdown "https://drive.google.com/uc?id=1jfnA4BTH-N99Sye4iOfq6QJx3CiFRzVd" && \
-    gdown "https://drive.google.com/uc?id=1ts-Ucv_fLsoPkJS_uahZpcfJJsznysK3" -O z_image_lora.safetensors
+# ── Startup script ────────────────────────────────────────────────────────────
+COPY setup_models.sh /setup_models.sh
+RUN chmod +x /setup_models.sh
 
-# ── Checkpoint ────────────────────────────────────────────────────────────────
-RUN cd ${COMFYUI_DIR}/models/checkpoints && rm -rf split_files/ && \
-    gdown "https://drive.google.com/uc?id=13czw4KRrCdzWb3bM_3AZj2V3kwfBlilj"
-
-# ── Diffusion Models ──────────────────────────────────────────────────────────
-RUN cd ${COMFYUI_DIR}/models/diffusion_models && rm -rf split_files/ && \
-    wget -q https://huggingface.co/vantagewithai/Z-Image-Turbo-GGUF/resolve/main/z_image_turbo-bf16.gguf 
-
-# ── Text Encoders ─────────────────────────────────────────────────────────────
-RUN cd ${COMFYUI_DIR}/models/text_encoders && rm -rf split_files/ && \
-    wget -q https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors 
-
-# ── VAE ───────────────────────────────────────────────────────────────────────
-RUN cd ${COMFYUI_DIR}/models/vae && rm -rf split_files/ && \
-    wget -q https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors 
-
-
-# ── Cleanup ───────────────────────────────────────────────────────────────────
+# ── Cleanup login ─────────────────────────────────────────────────────────────
 RUN rm -rf ${COMFYUI_DIR}/ComfyUI-Login \
            ${COMFYUI_DIR}/ComfyUI-login
 
