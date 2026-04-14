@@ -48,27 +48,16 @@ RUN cd ${COMFYUI_DIR}/models/checkpoints && rm -rf split_files/ && \
 
 # ── Diffusion Models ──────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/models/diffusion_models && rm -rf split_files/ && \
-    wget -q https://huggingface.co/vantagewithai/Z-Image-Turbo-GGUF/resolve/main/z_image_turbo-bf16.gguf && \
-    wget -q https://huggingface.co/vantagewithai/Z-Image-Turbo-GGUF/resolve/main/z_image_turbo-Q4_K_M.gguf && \
-    wget -q --header="Authorization: Bearer ${HF_TOKEN}" \
-        https://huggingface.co/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/main/flux-2-klein-9b-fp8.safetensors
+    wget -q https://huggingface.co/vantagewithai/Z-Image-Turbo-GGUF/resolve/main/z_image_turbo-bf16.gguf 
 
 # ── Text Encoders ─────────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/models/text_encoders && rm -rf split_files/ && \
-    wget -q https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors && \
-    wget -q --header="Authorization: Bearer ${HF_TOKEN}" \
-        https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b/resolve/main/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors
+    wget -q https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors 
 
 # ── VAE ───────────────────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/models/vae && rm -rf split_files/ && \
-    wget -q https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors && \
-    wget -q https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors
+    wget -q https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors 
 
-# ── SAM3 ──────────────────────────────────────────────────────────────────────
-RUN cd ${COMFYUI_DIR}/models/sam3 && \
-    wget -q --header="Authorization: Bearer ${HF_TOKEN}" \
-        https://huggingface.co/facebook/sam3/resolve/main/sam3.pt && \
-    wget -q https://huggingface.co/1038lab/sam3/resolve/main/sam3.safetensors
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 RUN rm -rf ${COMFYUI_DIR}/ComfyUI-Login \
