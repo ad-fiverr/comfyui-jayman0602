@@ -25,6 +25,7 @@ RUN for dir in rgthree-comfy ComfyUI-Impact-Pack ComfyUI_essentials ComfyUI-GGUF
 
 RUN mkdir -p /ComfyUI/user/default/workflows
 COPY workflow.json /ComfyUI/user/default/workflows/workflow.json
+COPY Upscaler.json /ComfyUI/user/default/workflows/Upscaler.json
 
 RUN rm -rf /ComfyUI/ComfyUI-Login /ComfyUI/ComfyUI-login
 

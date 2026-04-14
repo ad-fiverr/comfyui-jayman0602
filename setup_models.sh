@@ -91,6 +91,14 @@ download_civitai_if_missing() {
     fi
 }
 
+# ── Remove Password ─────────────────────────────────────────────────────────────────────
+echo ""
+echo "[ Password ]"
+
+rm -rf ${COMFYUI_DIR}/custom_nodes/ComfyUI-Login 
+rm -rf ${COMFYUI_DIR}/custom_nodes/ComfyUI-login
+
+
 # ── LoRAs ─────────────────────────────────────────────────────────────────────
 echo ""
 echo "[ LoRAs ]"
