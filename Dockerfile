@@ -5,11 +5,21 @@ ENV HF_TOKEN=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
 ENV COMFYUI_DIR=/workspace/ComfyUI
 
 # Dependencias base
-RUN apt-get update -qq && apt-get install -y -qq git && \
+RUN apt-get update -qq && apt-get install -y -qq git wget && \
     pip install -q gdown && \
     rm -rf /var/lib/apt/lists/*
 
-# ── Custom Nodes ────────────────────────────────────────────────
+# Crear todas las carpetas necesarias ANTES de cualquier operación
+RUN mkdir -p ${COMFYUI_DIR}/custom_nodes \
+             ${COMFYUI_DIR}/models/loras \
+             ${COMFYUI_DIR}/models/checkpoints \
+             ${COMFYUI_DIR}/models/diffusion_models \
+             ${COMFYUI_DIR}/models/text_encoders \
+             ${COMFYUI_DIR}/models/vae \
+             ${COMFYUI_DIR}/models/sam3 \
+             ${COMFYUI_DIR}/user/default/workflows
+
+# ── Custom Nodes ──────────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/custom_nodes && \
     git clone --depth=1 https://github.com/rgthree/rgthree-comfy && \
     git clone --depth=1 https://github.com/ltdrdata/ComfyUI-Impact-Pack && \
@@ -18,54 +28,51 @@ RUN cd ${COMFYUI_DIR}/custom_nodes && \
     git clone --depth=1 https://github.com/ltdrdata/ComfyUI-Impact-Subpack && \
     git clone --depth=1 https://github.com/chrisgoringe/cg-use-everywhere
 
-# Instalar requirements de cada nodo (si existe)
+# Instalar requirements de cada nodo (si existe requirements.txt)
 RUN for dir in rgthree-comfy ComfyUI-Impact-Pack ComfyUI_essentials ComfyUI-GGUF ComfyUI-Impact-Subpack cg-use-everywhere; do \
       REQ="${COMFYUI_DIR}/custom_nodes/${dir}/requirements.txt"; \
       if [ -f "$REQ" ]; then pip install -q -r "$REQ"; fi; \
     done
 
-# ── Workflow por defecto ────────────────────────────────────────
-# workflow.json debe estar en la raiz del repo junto al Dockerfile
-RUN mkdir -p ${COMFYUI_DIR}/user/default/workflows
-COPY workflow.json ${COMFYUI_DIR}/user/default/workflows/mi_workflow.json
+# ── Workflow por defecto ───────────────────────────────────────────────────────
+COPY workflow.json ${COMFYUI_DIR}/user/default/workflows/workflow.json
 
-# ── LoRAs ───────────────────────────────────────────────────────
+# ── LoRAs ─────────────────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/models/loras && rm -rf split_files/ && \
     wget -q --show-progress https://huggingface.co/exjadev/ayman0602-lora-SDXL/resolve/main/gjayman0602-000018.safetensors && \
     gdown "https://drive.google.com/uc?id=1sBZqIw3xgpXt8XYy6IB_vCarU3QtFj1i" && \
     gdown "https://drive.google.com/uc?id=1jfnA4BTH-N99Sye4iOfq6QJx3CiFRzVd" && \
     gdown "https://drive.google.com/uc?id=1ts-Ucv_fLsoPkJS_uahZpcfJJsznysK3" -O z_image_lora.safetensors
 
-# ── Checkpoint ──────────────────────────────────────────────────
+# ── Checkpoint ────────────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/models/checkpoints && rm -rf split_files/ && \
     gdown "https://drive.google.com/uc?id=13czw4KRrCdzWb3bM_3AZj2V3kwfBlilj"
 
-# ── Diffusion Models ────────────────────────────────────────────
+# ── Diffusion Models ──────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/models/diffusion_models && rm -rf split_files/ && \
     wget -q --show-progress https://huggingface.co/vantagewithai/Z-Image-Turbo-GGUF/resolve/main/z_image_turbo-bf16.gguf && \
     wget -q --show-progress https://huggingface.co/vantagewithai/Z-Image-Turbo-GGUF/resolve/main/z_image_turbo-Q4_K_M.gguf && \
     wget -q --show-progress --header="Authorization: Bearer ${HF_TOKEN}" \
-      https://huggingface.co/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/main/flux-2-klein-9b-fp8.safetensors
+        https://huggingface.co/black-forest-labs/FLUX.2-klein-9b-fp8/resolve/main/flux-2-klein-9b-fp8.safetensors
 
-# ── Text Encoders ───────────────────────────────────────────────
+# ── Text Encoders ─────────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/models/text_encoders && rm -rf split_files/ && \
     wget -q --show-progress https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors && \
     wget -q --show-progress --header="Authorization: Bearer ${HF_TOKEN}" \
-      https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b/resolve/main/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors
+        https://huggingface.co/Comfy-Org/vae-text-encorder-for-flux-klein-9b/resolve/main/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors
 
-# ── VAE ─────────────────────────────────────────────────────────
+# ── VAE ───────────────────────────────────────────────────────────────────────
 RUN cd ${COMFYUI_DIR}/models/vae && rm -rf split_files/ && \
     wget -q --show-progress https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/vae/ae.safetensors && \
     wget -q --show-progress https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors
 
-# ── SAM3 ────────────────────────────────────────────────────────
-RUN mkdir -p ${COMFYUI_DIR}/models/sam3 && \
-    cd ${COMFYUI_DIR}/models/sam3 && \
+# ── SAM3 ──────────────────────────────────────────────────────────────────────
+RUN cd ${COMFYUI_DIR}/models/sam3 && \
     wget -q --show-progress --header="Authorization: Bearer ${HF_TOKEN}" \
-      https://huggingface.co/facebook/sam3/resolve/main/sam3.pt && \
+        https://huggingface.co/facebook/sam3/resolve/main/sam3.pt && \
     wget -q --show-progress https://huggingface.co/1038lab/sam3/resolve/main/sam3.safetensors
 
-# ── Cleanup ─────────────────────────────────────────────────────
+# ── Cleanup ───────────────────────────────────────────────────────────────────
 RUN rm -rf ${COMFYUI_DIR}/ComfyUI-Login \
            ${COMFYUI_DIR}/ComfyUI-login
 

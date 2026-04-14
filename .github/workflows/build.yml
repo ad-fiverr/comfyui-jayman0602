@@ -3,6 +3,10 @@ name: Build & Push ComfyUI to Docker Hub
 on:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  IMAGE_NAME: adrianfiverr/comfyui-jayman0602
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -26,5 +30,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/comfyui-client:latest
+          tags: ${{ env.IMAGE_NAME }}:latest
           no-cache: true
